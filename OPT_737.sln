@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OPT_737_Test", "OPT_737\OPT_737_Test.csproj", "{62D3B576-641D-4CAF-B047-7B5669048C0A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OPTCore", "OPTCore\OPTCore.csproj", "{8D7A8204-9431-4912-94FF-4E89F8CE6436}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OPT", "OPT\OPT.csproj", "{19A505E8-5909-42FA-9EF1-DE510BC06889}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62D3B576-641D-4CAF-B047-7B5669048C0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62D3B576-641D-4CAF-B047-7B5669048C0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62D3B576-641D-4CAF-B047-7B5669048C0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62D3B576-641D-4CAF-B047-7B5669048C0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D7A8204-9431-4912-94FF-4E89F8CE6436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D7A8204-9431-4912-94FF-4E89F8CE6436}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D7A8204-9431-4912-94FF-4E89F8CE6436}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D7A8204-9431-4912-94FF-4E89F8CE6436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19A505E8-5909-42FA-9EF1-DE510BC06889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19A505E8-5909-42FA-9EF1-DE510BC06889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19A505E8-5909-42FA-9EF1-DE510BC06889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19A505E8-5909-42FA-9EF1-DE510BC06889}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4547BEC7-0471-4356-AD61-C615B7083FB1}
+	EndGlobalSection
+EndGlobal

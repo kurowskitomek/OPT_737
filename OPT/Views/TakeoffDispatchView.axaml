@@ -1,0 +1,402 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="500"
+             x:Class="OPT.Views.TakeoffDispatchView">
+
+	<UserControl.Styles>
+		<Style Selector="TextBlock.Title" >
+			<Setter Property="Foreground" Value="{DynamicResource LightTextForeground}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
+		<Style Selector="TextBlock.Description">
+			<Setter Property="Foreground" Value="{DynamicResource LightTextForeground}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="HorizontalAlignment" Value="Right"/>
+			<Setter Property="Margin" Value="10"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
+		<Style Selector="TextBlock.Description2">
+			<Setter Property="Foreground" Value="{DynamicResource LightTextForeground}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="HorizontalAlignment" Value="Left"/>
+			<Setter Property="Margin" Value="10"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
+	</UserControl.Styles>
+	
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="2*"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<Grid Grid.Row="0"
+			  Background="{DynamicResource PageBackgroundDark}">
+			
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="210"/>
+				<ColumnDefinition Width="40"/>
+				<ColumnDefinition Width="210"/>
+				<ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="40"/>
+				<ColumnDefinition Width="100"/>
+				<ColumnDefinition Width="210"/>
+			</Grid.ColumnDefinitions>
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+
+			<TextBlock Grid.Column="0"
+					   Grid.Row="0"
+					   Text="ARPT"
+					   Classes="Description"/>
+
+			<TextBlock Grid.Column="0"
+					   Grid.Row="1"
+					   Text="RWY"
+					   Classes="Description"/>
+
+			<TextBlock Grid.Column="0"
+					   Grid.Row="3"
+					   Text="WIND"
+					   Classes="Description"/>
+
+			<TextBlock Grid.Column="0"
+					   Grid.Row="4"
+					   Text="OAT"
+					   Classes="Description"/>
+
+			<TextBlock Grid.Column="0"
+					   Grid.Row="5"
+					   Text="QNH"
+					   Classes="Description"/>
+
+			<TextBlock Grid.Column="0"
+					   Grid.Row="6"
+					   Text="COND"
+					   Classes="Description"/>
+
+			<TextBlock Grid.Column="4"
+					   Grid.Row="0"
+					   Text="RTG"
+					   Classes="Description2"/>
+
+			<TextBlock Grid.Column="4"
+					   Grid.Row="1"
+					   Text="ATM"
+					   Classes="Description2"/>
+
+			<TextBlock Grid.Column="4"
+					   Grid.Row="2"
+					   Text="FLAP"
+					   Classes="Description2"/>
+
+			<TextBlock Grid.Column="4"
+					   Grid.Row="3"
+					   Text="A/C"
+					   Classes="Description2"/>
+
+			<TextBlock Grid.Column="4"
+					   Grid.Row="4"
+					   Text="A/I"
+					   Classes="Description2"/>
+
+			<TextBlock Grid.Column="4"		   
+					   Grid.Row="5"
+					   Text="REV"
+					   Classes="Description2"/>
+
+			<TextBlock Grid.Column="4"
+					   Grid.Row="6"
+					   Text="A/S"
+					   Classes="Description2"/>
+
+			<TextBlock Grid.Column="6"
+					   Grid.Row="0"
+					   Text="Takeoff Weight:"
+					   Classes="Description"/>
+
+			<AutoCompleteBox Grid.Column="1"
+							 Grid.Row="0"
+							 VerticalAlignment="Center"
+							 HorizontalAlignment="Stretch"
+							 SelectedItem="{Binding SelectedAirfield}"
+							 ItemsSource="{Binding Airfields}"
+							 ValueMemberBinding="{Binding ICAOCode}"		
+							 Watermark="ARPT SEARCH"
+							 FilterMode="Contains">
+
+				<AutoCompleteBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding ICAOCode}"/>
+					</DataTemplate>
+				</AutoCompleteBox.ItemTemplate>
+			</AutoCompleteBox>
+
+			<ComboBox Grid.Column="1"
+					  Grid.Row="1"
+					  ItemsSource="{Binding SelectedAirfield.Runways}"
+					  SelectedItem="{Binding SelectedRunway}"
+					  VerticalAlignment="Center"
+					  HorizontalAlignment="Stretch"
+					  PlaceholderText="RUNWAYS">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Designator}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<Button Grid.Column="1"
+					Grid.Row="2"
+					Margin="0,3,0,0"
+					Content="Load weather"
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Center"
+					HorizontalContentAlignment="Center"
+					VerticalContentAlignment="Center"
+					Command="{Binding LoadWeather}"
+					Foreground="{DynamicResource LightTextForeground}"
+					Background="{DynamicResource PageBackgroundLight}"/>
+
+			<Grid Grid.Column="1"
+				  Grid.Row="3"
+				  HorizontalAlignment="Stretch"
+				  VerticalAlignment="Stretch"
+				  Margin="0,3,0,3">
+
+				<Grid.RowDefinitions>
+					<RowDefinition/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition/>
+					<ColumnDefinition Width="10"/>
+					<ColumnDefinition/>
+					<ColumnDefinition Width="10"/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+
+				<TextBlock Grid.Row="0"
+						   Grid.Column="0"
+						   Text="DIR"
+						   Classes="Title"/>
+
+				<TextBlock Grid.Row="0"
+						   Grid.Column="2"
+						   Text="SPD"
+						   Classes="Title"/>
+
+				<TextBlock Grid.Row="0"
+						   Grid.Column="4"
+						   Text="GST"
+						   Classes="Title"/>
+
+				<TextBox Grid.Column="0"
+						 Grid.Row="1"
+						 HorizontalAlignment="Stretch"
+						 VerticalAlignment="Center"
+						 Text="{Binding WindDir}"/>
+
+				<TextBlock Grid.Column="1"
+						   Grid.Row="1"
+						   Text="/"
+						   Classes="Title"/>
+
+				<TextBox Grid.Column="2"
+						 Grid.Row="1"
+						 HorizontalAlignment="Stretch"
+						 VerticalAlignment="Center"
+						 Text="{Binding WindSpd}"/>
+
+				<TextBlock Grid.Column="3"
+						   Grid.Row="1"
+						   Text="G"
+						   Classes="Title"/>
+
+				<TextBox Grid.Column="4"
+						 Grid.Row="1"
+						 HorizontalAlignment="Stretch"
+						 VerticalAlignment="Center"
+						 Text="{Binding WindGust}"/>
+
+			</Grid>
+
+			<TextBox Grid.Column="1"
+					 Grid.Row="4"
+					 HorizontalAlignment="Stretch"
+					 VerticalAlignment="Center"
+					 Text="{Binding Oat}"/>
+
+			<TextBox Grid.Column="1"
+					 Grid.Row="5"
+					 HorizontalAlignment="Stretch"
+					 VerticalAlignment="Center"
+					 Text="{Binding Qnh}"/>
+
+			<Grid Grid.Column="1"
+				  Grid.Row="6">
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+
+				<ComboBox Grid.Column="0"
+						  VerticalAlignment="Center"
+						  HorizontalAlignment="Stretch"
+						  ItemsSource="{Binding RwyConditions}"
+						  SelectedValue="{Binding RwyCondition}"
+						  PlaceholderText="CONDITION">
+
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Key}"/>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>		
+				
+				<TextBlock Grid.Column="1" 
+						   Text="{Binding Depth}" 
+						   Classes="Title"/>
+			</Grid>
+			
+			<ComboBox Grid.Column="3"
+					  Grid.Row="0"
+					  VerticalAlignment="Center"
+					  HorizontalAlignment="Stretch"
+					  ItemsSource="{Binding ThrRTGs}"
+					  SelectedValue="{Binding ThrRTG}"
+					  PlaceholderText="THRUST RTG">
+
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Key}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<TextBox Grid.Column="3"
+					   Grid.Row="1"
+					   VerticalAlignment="Center"
+					   HorizontalAlignment="Stretch"
+					   Watermark="MAX"
+					   IsEnabled="False"/>
+			
+			<ComboBox Grid.Column="3"
+					  Grid.Row="2"
+					  VerticalAlignment="Center"
+					  HorizontalAlignment="Stretch"
+					  ItemsSource="{Binding FlapsConfigs}"
+					  SelectedValue="{Binding FlapsConfig}"
+					  PlaceholderText="FLAP CONFIG">
+
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Key}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<ComboBox Grid.Column="3"
+					  Grid.Row="3"
+					  VerticalAlignment="Center"
+					  HorizontalAlignment="Stretch"
+					  ItemsSource="{Binding AirCondConfigs}"
+					  SelectedValue="{Binding AirCondConfig}"
+					  PlaceholderText="A/C CONFIG">
+
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Key}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<ComboBox Grid.Column="3"
+					  Grid.Row="4"
+					  VerticalAlignment="Center"
+					  HorizontalAlignment="Stretch"
+					  ItemsSource="{Binding AntiIceConfigs}"
+					  SelectedValue="{Binding AntiIceConfig}"
+					  PlaceholderText="A/I CONFIG">
+
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Key}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<ComboBox Grid.Column="3"
+					  Grid.Row="5"
+					  VerticalAlignment="Center"
+					  HorizontalAlignment="Stretch"
+					  ItemsSource="{Binding ReverseConfigs}"
+					  SelectedValue="{Binding ReverseConfig}"
+					  PlaceholderText="REV CONFIG">
+
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Key}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<ComboBox Grid.Column="3"
+					  Grid.Row="6"
+					  VerticalAlignment="Center"
+					  HorizontalAlignment="Stretch"
+					  ItemsSource="{Binding AntiSkidConfigs}"
+					  SelectedValue="{Binding AntiSkidConfig}"
+					  PlaceholderText="A/S CONFIG">
+
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Key}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+			
+			<TextBox Grid.Column="7"
+					 Grid.Row="0"
+					 VerticalAlignment="Center"
+					 HorizontalAlignment="Stretch"
+					 Watermark="KG"
+					 Text="{Binding ToWeight}"/>
+			
+		</Grid>
+
+		<Grid Grid.Row="1"
+			  Background="{DynamicResource PageBackgroundMid}">
+			
+			<Button HorizontalAlignment="Right" 
+					Content="Calculate"
+					Background="Green"
+					Margin="10"
+					Width="80"
+					HorizontalContentAlignment="Center"
+					VerticalContentAlignment="Center"
+					Command="{Binding Calculate}"/>
+		</Grid>
+		
+		<Grid Grid.Row="2"
+			  Background="Black">
+			<ContentControl Content="{Binding Path=ResultsViewModel}"/>
+		</Grid>
+	</Grid>
+</UserControl>

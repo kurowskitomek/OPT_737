@@ -1,0 +1,22 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:OPT"
+             x:Class="OPT.App">
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+	<Application.Styles>
+		<FluentTheme />
+	</Application.Styles>
+
+	<Application.Resources>
+		<SolidColorBrush x:Key="PageBackgroundLight">#40434e</SolidColorBrush>
+		<SolidColorBrush x:Key="PageBackgroundDark">#1b1c22</SolidColorBrush>
+		<SolidColorBrush x:Key="PageBackgroundMid">#2b2d36</SolidColorBrush>
+		<SolidColorBrush x:Key="LightTextForeground">White</SolidColorBrush>
+		<SolidColorBrush x:Key="DarkTextForeground">#757e85</SolidColorBrush>
+		<SolidColorBrush x:Key="InactiveTextForeground">Black</SolidColorBrush>
+	</Application.Resources>
+	
+</Application>

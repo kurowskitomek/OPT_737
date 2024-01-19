@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             x:Class="OPT.Views.DepthView">
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition/>
+			<RowDefinition Height="30"/>
+			<RowDefinition Height="30"/>
+		</Grid.RowDefinitions>
+
+		<TextBlock Grid.Row="0">
+			<Run Text="What is the depth of the "/>
+			<Run Text="{Binding Contamination}"/>
+			<Run Text="?"/>
+		</TextBlock>
+
+		<StackPanel Orientation="Vertical"
+					Grid.Row="1">
+			<TextBlock Text="Depth"/>
+			<TextBox Text="{Binding Depth}"/>
+		</StackPanel>
+
+		<TextBlock Grid.Row="2">
+			<Run Text="Minimum "/>
+			<Run Text="{Binding Contamination}"/>
+			<Run Text=" depth = "/>
+			<Run Text="{Binding Min}"/>
+		</TextBlock>
+
+		<TextBlock Grid.Row="3">
+			<Run Text="Maximum "/>
+			<Run Text="{Binding Contamination}"/>
+			<Run Text=" depth = "/>
+			<Run Text="{Binding Max}"/>
+		</TextBlock>
+	</Grid>
+</UserControl>
