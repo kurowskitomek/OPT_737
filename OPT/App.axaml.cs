@@ -51,99 +51,48 @@ namespace OPT
 
         private void ConfigureServices(HostBuilderContext hostContext, IServiceCollection services)
         {
-            ITOPerformance dryMaxPerformance =
+            ITOPerformance maxPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerfMax.VSpeeds,
+                    TOPerfMax.DensAltCorr,
+                    TOPerfMax.SlopeCorr,
+                    TOPerfMax.WindCorr,
+                    TOPerfMax.Vmcg,
+                    TOPerfMax.ClearwayCorr,
+                    TOPerfMax.SlushV1Corr,
+                    TOPerfMax.SlipperyV1Corr,
+                    TOPerfMax.AntiSkidCorr);
 
-            ITOPerformance dry22KPerformance =
+            ITOPerformance _22KPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerf22K.VSpeeds,
+                    TOPerf22K.DensAltCorr,
+                    TOPerf22K.SlopeCorr,
+                    TOPerf22K.WindCorr,
+                    TOPerf22K.Vmcg,
+                    TOPerf22K.ClearwayCorr,
+                    TOPerf22K.SlushV1Corr,
+                    TOPerf22K.SlipperyV1Corr,
+                    TOPerf22K.AntiSkidCorr);
 
-            ITOPerformance dry24KPerformance =
+            ITOPerformance _24KPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerf24K.VSpeeds,
+                    TOPerf24K.DensAltCorr,
+                    TOPerf24K.SlopeCorr,
+                    TOPerf24K.WindCorr,
+                    TOPerf24K.Vmcg,
+                    TOPerf24K.ClearwayCorr,
+                    TOPerf24K.SlushV1Corr,
+                    TOPerf24K.SlipperyV1Corr,
+                    TOPerf24K.AntiSkidCorr);
 
-            ITOPerformance wetMaxPerformance =
-                new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
-
-            ITOPerformance wet22KPerformance =
-                new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
-
-            ITOPerformance wet24KPerformance =
-                new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
-
-            Dictionary<TOThrust, ITOPerformance> dryPerformance =
+            Dictionary<TOThrust, ITOPerformance> dataSets =
                 new Dictionary<TOThrust, ITOPerformance>
                 {
-                    { TOThrust.Max, dryMaxPerformance },
-                    { TOThrust.Derate22K, dry22KPerformance },
-                    { TOThrust.Derate24K, dry24KPerformance }
-                };
-
-            Dictionary<TOThrust, ITOPerformance> wetPerformance =
-                new Dictionary<TOThrust, ITOPerformance>
-                {
-                    { TOThrust.Max, wetMaxPerformance },
-                    { TOThrust.Derate22K, wet22KPerformance },
-                    { TOThrust.Derate24K, wet24KPerformance }
-                };
-
-            Dictionary<RunwayCondition, Dictionary<TOThrust, ITOPerformance>> dataSets
-                = new Dictionary<RunwayCondition, Dictionary<TOThrust, ITOPerformance>>
-                {
-                    { RunwayCondition.Dry, dryPerformance },
-                    { RunwayCondition.Good, wetPerformance }
+                    { TOThrust.Max, maxPerformance },
+                    { TOThrust.Derate22K, _22KPerformance },
+                    { TOThrust.Derate24K, _24KPerformance }
                 };
 
             services.AddSingleton<MainWindowViewModel>();

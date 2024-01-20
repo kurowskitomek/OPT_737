@@ -4,10 +4,10 @@ namespace OPTCore.PerformanceCalculation
 {
     public class PerformanceCalculator : IPerformanceCalculator
     {
-        private readonly Dictionary<RunwayCondition, Dictionary<TOThrust, ITOPerformance>> _dataSets;
+        private readonly Dictionary<TOThrust, ITOPerformance> _dataSets;
 
         public PerformanceCalculator(
-            Dictionary<RunwayCondition, Dictionary<TOThrust, ITOPerformance>> dataSets)
+            Dictionary<TOThrust, ITOPerformance> dataSets)
         {
             _dataSets = dataSets;
         }
@@ -27,11 +27,11 @@ namespace OPTCore.PerformanceCalculation
 
             int lengthStep = 500;
             int keyLength = rwyLength / lengthStep * lengthStep;
-            float antiSkidInopCorr = dataSet.AntiSkidInopCorrection[keyLength];
+            float antiSkidInopCorr = dataSet.AntiSkidCorr[keyLength];
 
             if (rwyLength % lengthStep != 0)
             {
-                int upperValue = dataSet.AntiSkidInopCorrection[keyLength + lengthStep];
+                int upperValue = dataSet.AntiSkidCorr[keyLength + lengthStep];
                 int dLength = rwyLength - keyLength;
                 float dAntiSkidInopCorr = upperValue - antiSkidInopCorr;
 
@@ -63,8 +63,8 @@ namespace OPTCore.PerformanceCalculation
                 keyTemp = -60;
                 tempStep = 80;
             }
-
-            float? basePressAltAndTempCorr = dataSet.PressAltAndTempCorr[(int)vSpeed][keyTemp][keyPressAlt];
+            
+            float? basePressAltAndTempCorr = dataSet.DensAltCorr[(int)vSpeed][keyTemp][keyPressAlt];
 
             if (basePressAltAndTempCorr is null)
                 throw new OutsideDensAltEnvelopeException();
@@ -76,7 +76,7 @@ namespace OPTCore.PerformanceCalculation
                 //if (temp < 0)
                    // tempStep = -60;
 
-                int? upperValue = dataSet.PressAltAndTempCorr[0][keyTemp + tempStep][keyPressAlt];
+                int? upperValue = dataSet.DensAltCorr[0][keyTemp + tempStep][keyPressAlt];
 
                 if (upperValue is null)
                     throw new OutsideDensAltEnvelopeException();
@@ -92,7 +92,7 @@ namespace OPTCore.PerformanceCalculation
                 if (pressAlt < 0)
                     pressAltStep = -1 * pressAltStep;
 
-                int? upperValue = dataSet.PressAltAndTempCorr[0][keyTemp][keyPressAlt + pressAltStep];
+                int? upperValue = dataSet.DensAltCorr[0][keyTemp][keyPressAlt + pressAltStep];
 
                 if (upperValue is null)
                     throw new OutsideDensAltEnvelopeException();
@@ -121,7 +121,7 @@ namespace OPTCore.PerformanceCalculation
             int slopeStep = 1;
             int keySlope = (int)slope;
             int keyWeight = (int)weight / weightStep * weightStep;
-            float baseSlopeCorr = dataSet.SlopeCorrection[keyWeight][keySlope];
+            float baseSlopeCorr = dataSet.SlopeCorr[keyWeight][keySlope];
             float slopeCorr = baseSlopeCorr;
 
             if (weight % weightStep != 0)
@@ -129,7 +129,7 @@ namespace OPTCore.PerformanceCalculation
                 float dWeight = weight - keyWeight;
 
                 float upperValue =
-                    dataSet.SlopeCorrection[keyWeight + weightStep][keySlope];
+                    dataSet.SlopeCorr[keyWeight + weightStep][keySlope];
                 float dSlopeCorr =
                     (int)upperValue - baseSlopeCorr;
 
@@ -141,7 +141,7 @@ namespace OPTCore.PerformanceCalculation
                 if (slope < 0)
                     slopeStep = -1 * slopeStep;
 
-                int upperValue = dataSet.SlopeCorrection[keyWeight][keySlope + slopeStep];
+                int upperValue = dataSet.SlopeCorr[keyWeight][keySlope + slopeStep];
                 float dSlope = slope - keySlope;
                 float dSlopeCorr = upperValue - baseSlopeCorr;
 
@@ -166,7 +166,7 @@ namespace OPTCore.PerformanceCalculation
             int weightStep = 10;
             int keyWind = headWind / windStep * windStep;
             int keyWeight = (int)weight / weightStep * weightStep;
-            float baseWindCorr = dataSet.WindCorrection[keyWeight][keyWind];
+            float baseWindCorr = dataSet.WindCorr[keyWeight][keyWind];
             float windCorr = baseWindCorr;
 
             if (headWind % windStep != 0)
@@ -174,7 +174,7 @@ namespace OPTCore.PerformanceCalculation
                 if (headWind < 0)
                     windStep = -5;
 
-                int upperValue = dataSet.WindCorrection[keyWeight][keyWind + windStep];
+                int upperValue = dataSet.WindCorr[keyWeight][keyWind + windStep];
                 int dWind = headWind - keyWind;
                 float dWindCorr = upperValue - baseWindCorr;
 
@@ -184,7 +184,7 @@ namespace OPTCore.PerformanceCalculation
             if (weight % weightStep != 0)
             {
                 float dWeight = weight - keyWeight;
-                float upperValue = dataSet.WindCorrection[keyWeight + weightStep][keyWind];
+                float upperValue = dataSet.WindCorr[keyWeight + weightStep][keyWind];
                 float dWindCorr = (int)upperValue - baseWindCorr;
 
                 windCorr += dWeight / weightStep * baseWindCorr;
@@ -293,7 +293,7 @@ namespace OPTCore.PerformanceCalculation
             else if (slush == 13)
                 keySlush = 13;
 
-            float baseSlushCorr = dataSet.SlushCorrection[revThrust][keySlush][keyWeight][keyPressAlt];
+            float baseSlushCorr = dataSet.SlushCorr[revThrust][keySlush][keyWeight][keyPressAlt];
 
             float slushCorr = baseSlushCorr;
 
@@ -303,7 +303,7 @@ namespace OPTCore.PerformanceCalculation
                   //  slushStep = 7;
 
                 int upperValue =
-                    dataSet.SlushCorrection[revThrust][keySlush + slushStep][keyWeight][keyPressAlt];
+                    dataSet.SlushCorr[revThrust][keySlush + slushStep][keyWeight][keyPressAlt];
                 float dSlush = slush - keySlush;
                 float dSlushCorr = upperValue - baseSlushCorr;
 
@@ -314,7 +314,7 @@ namespace OPTCore.PerformanceCalculation
             {
                 float dPressAlt = pressAlt - keyPressAlt;
                 int upperValue =
-                    dataSet.SlushCorrection[revThrust][keySlush][keyWeight][keyPressAlt + pressAltStep];
+                    dataSet.SlushCorr[revThrust][keySlush][keyWeight][keyPressAlt + pressAltStep];
                 float dSlushCorr = upperValue - baseSlushCorr;
 
                 slushCorr += dPressAlt / pressAltStep * dSlushCorr;
@@ -324,7 +324,7 @@ namespace OPTCore.PerformanceCalculation
             {
                 float dWeight = weight - keyWeight;
                 int upperValue =
-                    dataSet.SlushCorrection[revThrust][keySlush][keyWeight + weightStep][keyPressAlt];
+                    dataSet.SlushCorr[revThrust][keySlush][keyWeight + weightStep][keyPressAlt];
                 float dSlushCorr = upperValue - baseSlushCorr;
                 slushCorr += dWeight / weightStep * dSlushCorr;
             }
@@ -360,7 +360,7 @@ namespace OPTCore.PerformanceCalculation
             int keyWeight = (int)weight / weightStep * weightStep;
             int keyPressAlt = (int)pressAlt / pressAltStep * pressAltStep;
             float baseBrakingActionCorr =
-                dataSet.BrakingActionCorrection[reverseThrust][brakingAction][keyWeight][keyPressAlt];
+                dataSet.BrakingActionCorr[reverseThrust][brakingAction][keyWeight][keyPressAlt];
 
             float brakingActionCorr = baseBrakingActionCorr;
 
@@ -368,7 +368,7 @@ namespace OPTCore.PerformanceCalculation
             {
                 float dPressAlt = pressAlt - pressAlt;
                 int upperValue =
-                    dataSet.BrakingActionCorrection[reverseThrust][brakingAction][keyWeight][keyPressAlt + pressAltStep];
+                    dataSet.BrakingActionCorr[reverseThrust][brakingAction][keyWeight][keyPressAlt + pressAltStep];
                 float dBrakingActionCorr = upperValue - baseBrakingActionCorr;
 
                 brakingActionCorr += dPressAlt / pressAltStep * dBrakingActionCorr;
@@ -378,7 +378,7 @@ namespace OPTCore.PerformanceCalculation
             {
                 float dWeight = weight - keyWeight;
                 int upperValue =
-                    dataSet.BrakingActionCorrection[reverseThrust][brakingAction][keyWeight][keyPressAlt];
+                    dataSet.BrakingActionCorr[reverseThrust][brakingAction][keyWeight][keyPressAlt];
                 float dBrakingActionCorr = upperValue - baseBrakingActionCorr;
 
                 brakingActionCorr += dWeight / weightStep * dBrakingActionCorr;
@@ -406,7 +406,7 @@ namespace OPTCore.PerformanceCalculation
                 keyV1 = 160;
 
             int baseClearwayCorr =
-                dataSet.ClearwayCorrection[keyClearwayMstopway][keyV1];
+                dataSet.ClearwayCorr[keyClearwayMstopway][keyV1];
             float clearwayCorr = baseClearwayCorr;
 
             if (clearwayMStopway % clearwayStep != 0)
@@ -415,7 +415,7 @@ namespace OPTCore.PerformanceCalculation
                     clearwayStep = -1 * clearwayStep;
 
                 int upperValue =
-                    dataSet.ClearwayCorrection[keyClearwayMstopway + clearwayStep][keyV1];
+                    dataSet.ClearwayCorr[keyClearwayMstopway + clearwayStep][keyV1];
                 float dClearwayMStopway =
                     clearwayMStopway - keyClearwayMstopway;
                 int dClearwayCorr =
@@ -427,7 +427,7 @@ namespace OPTCore.PerformanceCalculation
             if (v1 % v1Step != 0)
             {
                 int upperValue =
-                    dataSet.ClearwayCorrection[keyClearwayMstopway][keyV1 + v1Step];
+                    dataSet.ClearwayCorr[keyClearwayMstopway][keyV1 + v1Step];
                 float dV1 = (float)v1 - keyV1;
                 float dClearwayCorr =
                     upperValue - baseClearwayCorr;
@@ -458,13 +458,13 @@ namespace OPTCore.PerformanceCalculation
                 parameters.RunwayCondition > RunwayCondition.Dry)
                 throw new InopAntiSkidNotAllowedException();
 
-            RunwayCondition rwyCondition = RunwayCondition.Dry;//parameters.RunwayCondition;
+            //RunwayCondition rwyCondition = RunwayCondition.Dry;//parameters.RunwayCondition;
 
             /*if (parameters.RunwayCondition > RunwayCondition.Good ||
                 parameters.RunwayCondition > RunwayCondition.Dry && parameters.ReverseThrust is ReverseThrust.None)
                 rwyCondition = RunwayCondition.Dry;*/
 
-            ITOPerformance dataSet = _dataSets[rwyCondition][parameters.Thrust];
+            ITOPerformance dataSet = _dataSets[parameters.Thrust];
 
             float v1 = CalculateBaseVSpeed(VSpeed.V1, parameters, dataSet);
 
@@ -559,7 +559,7 @@ namespace OPTCore.PerformanceCalculation
             if (parameters.RunwayCondition > RunwayCondition.Good)
                 rwyCondition = RunwayCondition.Dry;
 
-            ITOPerformance dataSet = _dataSets[rwyCondition][parameters.Thrust];
+            ITOPerformance dataSet = _dataSets[parameters.Thrust];
             float vr = CalculateBaseVSpeed(VSpeed.Vr, parameters, dataSet);
             float vmcg =
                 CalculateVmcg(dataSet, parameters.PressureAltitude, parameters.Temperature);
@@ -586,7 +586,7 @@ namespace OPTCore.PerformanceCalculation
             if (parameters.RunwayCondition > RunwayCondition.Good)
                 rwyCondition = RunwayCondition.Dry;
 
-            ITOPerformance dataSet = _dataSets[rwyCondition][parameters.Thrust];
+            ITOPerformance dataSet = _dataSets[parameters.Thrust];
 
             float vr = CalculateBaseVSpeed(VSpeed.Vr, parameters, dataSet);
 

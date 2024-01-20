@@ -14,75 +14,75 @@ namespace OPT_737_Test
         {
             ITOPerformance dryMaxPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerfMax.VSpeeds,
+                    TOPerfMax.DensAltCorr,
+                    TOPerfMax.SlopeCorr,
+                    TOPerfMax.WindCorr,
+                    TOPerfMax.Vmcg,
+                    TOPerfMax.ClearwayCorr,
+                    TOPerfMax.SlushV1Corr,
+                    TOPerfMax.SlipperyV1Corr,
+                    TOPerfMax.AntiSkidCorr);
 
             ITOPerformance dry22KPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerfMax.VSpeeds,
+                    TOPerfMax.DensAltCorr,
+                    TOPerfMax.SlopeCorr,
+                    TOPerfMax.WindCorr,
+                    TOPerfMax.Vmcg,
+                    TOPerfMax.ClearwayCorr,
+                    TOPerfMax.SlushV1Corr,
+                    TOPerfMax.SlipperyV1Corr,
+                    TOPerfMax.AntiSkidCorr);
 
             ITOPerformance dry24KPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerfMax.VSpeeds,
+                    TOPerfMax.DensAltCorr,
+                    TOPerfMax.SlopeCorr,
+                    TOPerfMax.WindCorr,
+                    TOPerfMax.Vmcg,
+                    TOPerfMax.ClearwayCorr,
+                    TOPerfMax.SlushV1Corr,
+                    TOPerfMax.SlipperyV1Corr,
+                    TOPerfMax.AntiSkidCorr);
 
             ITOPerformance wetMaxPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg, 
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerfMax.VSpeeds,
+                    TOPerfMax.DensAltCorr,
+                    TOPerfMax.SlopeCorr,
+                    TOPerfMax.WindCorr,
+                    TOPerfMax.Vmcg, 
+                    TOPerfMax.ClearwayCorr,
+                    TOPerfMax.SlushV1Corr,
+                    TOPerfMax.SlipperyV1Corr,
+                    TOPerfMax.AntiSkidCorr);
 
             ITOPerformance wet22KPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg,
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerfMax.VSpeeds,
+                    TOPerfMax.DensAltCorr,
+                    TOPerfMax.SlopeCorr,
+                    TOPerfMax.WindCorr,
+                    TOPerfMax.Vmcg,
+                    TOPerfMax.ClearwayCorr,
+                    TOPerfMax.SlushV1Corr,
+                    TOPerfMax.SlipperyV1Corr,
+                    TOPerfMax.AntiSkidCorr);
 
             ITOPerformance wet24KPerformance =
                 new TOPerformance(
-                    TOSpeedsDryMax.VSpeeds,
-                    TOSpeedsDryMax.PressAltAndTempCorrection,
-                    TOSpeedsDryMax.SlopeCorrection,
-                    TOSpeedsDryMax.WindCorrection,
-                    TOSpeedsDryMax.Vmcg, 
-                    TOSpeedsDryMax.ClearwayCorrection,
-                    TOSpeedsDryMax.SlushV1Correction,
-                    TOSpeedsDryMax.SlipperyV1Correction,
-                    TOSpeedsDryMax.AntiSkidInopCorrection);
+                    TOPerfMax.VSpeeds,
+                    TOPerfMax.DensAltCorr,
+                    TOPerfMax.SlopeCorr,
+                    TOPerfMax.WindCorr,
+                    TOPerfMax.Vmcg, 
+                    TOPerfMax.ClearwayCorr,
+                    TOPerfMax.SlushV1Corr,
+                    TOPerfMax.SlipperyV1Corr,
+                    TOPerfMax.AntiSkidCorr);
 
             Dictionary<TOThrust, ITOPerformance> dryPerformance =
                 new Dictionary<TOThrust, ITOPerformance>
