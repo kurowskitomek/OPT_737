@@ -1,4 +1,6 @@
-﻿namespace OPTCore.PerformanceCalculation.Models
+﻿using System.Collections.Generic;
+
+namespace OPTCore.PerformanceCalculation.Models
 {
     public class TOPerformance : ITOPerformance
     {
@@ -40,6 +42,8 @@
             SlushCorr = slushCorr;
             BrakingActionCorr = brakingActionCorr;
             AntiSkidCorr = antiSkidCorr;
+
+           
         }
     }
 }

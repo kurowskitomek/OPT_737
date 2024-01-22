@@ -76,7 +76,7 @@ namespace OPTCore.PerformanceCalculation
                 //if (temp < 0)
                    // tempStep = -60;
 
-                int? upperValue = dataSet.DensAltCorr[0][keyTemp + tempStep][keyPressAlt];
+                int? upperValue = dataSet.DensAltCorr[(int)vSpeed][keyTemp + tempStep][keyPressAlt];
 
                 if (upperValue is null)
                     throw new OutsideDensAltEnvelopeException();
@@ -92,7 +92,7 @@ namespace OPTCore.PerformanceCalculation
                 if (pressAlt < 0)
                     pressAltStep = -1 * pressAltStep;
 
-                int? upperValue = dataSet.DensAltCorr[0][keyTemp][keyPressAlt + pressAltStep];
+                int? upperValue = dataSet.DensAltCorr[(int)vSpeed][keyTemp][keyPressAlt + pressAltStep];
 
                 if (upperValue is null)
                     throw new OutsideDensAltEnvelopeException();
@@ -634,28 +634,59 @@ namespace OPTCore.PerformanceCalculation
             if (parameters.PressureAltitude < -2 || parameters.PressureAltitude > 10)
                 throw new OutsidePressAltEnvelopeException();
 
-            int weightStep = 5;
-            int keyWeight = (int)parameters.Weight / weightStep * weightStep;
-            float? v = dataSet.VSpeeds[parameters.Flaps][keyWeight][(int)vSpeed];
+            //int weightStep = 5;
+            //int keyWeight = (int)parameters.Weight / weightStep * weightStep;
+            //float? v = dataSet.VSpeeds[parameters.Flaps][keyWeight][(int)vSpeed];
+
+            (int lower, int upper) weightKeys = BinarySearch(dataSet.VSpeeds[parameters.Flaps], (int)parameters.Weight);
+            float? v = dataSet.VSpeeds[parameters.Flaps][weightKeys.lower][(int)vSpeed];
+           
 
             if (v is null)
                 throw new OutsideWeightEnvelopeException();
 
-            if (parameters.Weight % weightStep != 0)
+            if (parameters.Weight != weightKeys.lower)
             {
                 int? upperValue =
-                    dataSet.VSpeeds[parameters.Flaps][keyWeight + weightStep][(int)vSpeed];
+                    dataSet.VSpeeds[parameters.Flaps][weightKeys.upper][(int)vSpeed];
 
                 if (upperValue is null)
                     throw new OutsideWeightEnvelopeException();
 
-                float dWeight = parameters.Weight - keyWeight;
+                float dWeight = parameters.Weight - weightKeys.lower;
                 float dSpeed = (int)upperValue - (float)v;
 
-                v += dWeight / weightStep * dSpeed;
+                v += dWeight / (weightKeys.upper - weightKeys.lower) * dSpeed;
             }
 
             return (float)v;
+        }
+
+        private (T, T) BinarySearch<T, U>(SortedList<T, U> list, T key) where T : notnull
+        {
+            if (list is null)
+                return default;
+
+            var comp = Comparer<T>.Default;
+            int start = 0;
+            int end = list.Count() - 1;
+
+            while (start < end - 1)
+            {
+                int pivot = (start + end) / 2;
+
+                T element = list.GetKeyAtIndex(pivot);
+
+                if (comp.Compare(element, key) > 0)
+                    end = pivot;
+                else
+                    start = pivot;
+            }
+
+            T high = list.GetKeyAtIndex(end);
+            T low = list.GetKeyAtIndex(start);
+
+            return (low, high);
         }
     }
 }
