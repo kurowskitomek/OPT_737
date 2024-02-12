@@ -12,432 +12,6 @@ namespace OPTCore.PerformanceCalculation
             _dataSets = dataSets;
         }
 
-        private int CalculateThrustReverserInopCorrection()
-            => -2;
-
-        private float CalculateAntiSkidInopCorrection(
-            ITOPerformance dataSet,
-            int rwyLength)
-        {
-            if (rwyLength > 4000)
-                rwyLength = 4000;
-
-            if (rwyLength < 2000)
-                rwyLength = 2000;
-
-            int lengthStep = 500;
-            int keyLength = rwyLength / lengthStep * lengthStep;
-            float antiSkidInopCorr = dataSet.AntiSkidCorr[keyLength];
-
-            if (rwyLength % lengthStep != 0)
-            {
-                int upperValue = dataSet.AntiSkidCorr[keyLength + lengthStep];
-                int dLength = rwyLength - keyLength;
-                float dAntiSkidInopCorr = upperValue - antiSkidInopCorr;
-
-                antiSkidInopCorr += dLength / lengthStep * dAntiSkidInopCorr;
-            }
-
-            return antiSkidInopCorr;
-        }
-
-        private float CalculateDensAltCorrection(
-            ITOPerformance dataSet,
-            int temp,
-            float pressAlt,
-            VSpeed vSpeed)
-        {
-            if (temp > 70 || temp < -60)
-                throw new OutsideTempEnvelopeException();
-
-            if (pressAlt < -2 || pressAlt > 10)
-                throw new OutsidePressAltEnvelopeException();
-
-            int tempStep = 10;
-            int pressAltStep = 2;
-            int keyTemp = temp / tempStep * tempStep;
-            int keyPressAlt = (int)pressAlt / pressAltStep * pressAltStep;
-
-            if (tempStep < 20)
-            {
-                keyTemp = -60;
-                tempStep = 80;
-            }
-            
-            float? basePressAltAndTempCorr = dataSet.DensAltCorr[(int)vSpeed][keyTemp][keyPressAlt];
-
-            if (basePressAltAndTempCorr is null)
-                throw new OutsideDensAltEnvelopeException();
-
-            float pressAltAndTempCorr = (float)basePressAltAndTempCorr;
-
-            if (temp % tempStep != 0)
-            {
-                //if (temp < 0)
-                   // tempStep = -60;
-
-                int? upperValue = dataSet.DensAltCorr[(int)vSpeed][keyTemp + tempStep][keyPressAlt];
-
-                if (upperValue is null)
-                    throw new OutsideDensAltEnvelopeException();
-
-                int dTemp = temp - keyTemp;
-                float dPressAltAndTempCorr = (float)upperValue - (float)basePressAltAndTempCorr;
-
-                pressAltAndTempCorr += dTemp / Math.Abs(tempStep) * dPressAltAndTempCorr;
-            }
-
-            if (pressAlt % pressAltStep != 0)
-            {
-                if (pressAlt < 0)
-                    pressAltStep = -1 * pressAltStep;
-
-                int? upperValue = dataSet.DensAltCorr[(int)vSpeed][keyTemp][keyPressAlt + pressAltStep];
-
-                if (upperValue is null)
-                    throw new OutsideDensAltEnvelopeException();
-
-                float dPressAlt = pressAlt - keyPressAlt;
-                float dPressAltAndTempCorr = (int)upperValue - (float)basePressAltAndTempCorr;
-
-                pressAltAndTempCorr += dPressAlt / Math.Abs(pressAltStep) * dPressAltAndTempCorr;
-            }
-
-            return pressAltAndTempCorr;
-        }
-
-        private float CalculateSlopeCorrection(
-            ITOPerformance dataSet,
-            float slope,
-            float weight)
-        {
-            if (slope > 2 || slope < -2)
-                throw new OutsideSlopeEnvelopeException();
-
-            if (weight < 40 || weight > 90)
-                throw new OutsideWeightEnvelopeException();
-
-            int weightStep = 10;
-            int slopeStep = 1;
-            int keySlope = (int)slope;
-            int keyWeight = (int)weight / weightStep * weightStep;
-            float baseSlopeCorr = dataSet.SlopeCorr[keyWeight][keySlope];
-            float slopeCorr = baseSlopeCorr;
-
-            if (weight % weightStep != 0)
-            {
-                float dWeight = weight - keyWeight;
-
-                float upperValue =
-                    dataSet.SlopeCorr[keyWeight + weightStep][keySlope];
-                float dSlopeCorr =
-                    (int)upperValue - baseSlopeCorr;
-
-                slopeCorr += dWeight / weightStep * dSlopeCorr;
-            }
-
-            if (slope != Math.Floor(slope))
-            {
-                if (slope < 0)
-                    slopeStep = -1 * slopeStep;
-
-                int upperValue = dataSet.SlopeCorr[keyWeight][keySlope + slopeStep];
-                float dSlope = slope - keySlope;
-                float dSlopeCorr = upperValue - baseSlopeCorr;
-
-                slopeCorr += dSlope * dSlopeCorr;
-            }
-
-            return slopeCorr;
-        }
-
-        private float CalculateWindCorrection(
-            ITOPerformance dataSet,
-            int headWind,
-            float weight)
-        {
-            if (headWind < -15 || headWind > 40)
-                throw new OutsideWindEnvelopeException();
-
-            if (weight < 40 || weight > 90)
-                throw new OutsideWeightEnvelopeException();
-
-            int windStep = 10;
-            int weightStep = 10;
-            int keyWind = headWind / windStep * windStep;
-            int keyWeight = (int)weight / weightStep * weightStep;
-            float baseWindCorr = dataSet.WindCorr[keyWeight][keyWind];
-            float windCorr = baseWindCorr;
-
-            if (headWind % windStep != 0)
-            {
-                if (headWind < 0)
-                    windStep = -5;
-
-                int upperValue = dataSet.WindCorr[keyWeight][keyWind + windStep];
-                int dWind = headWind - keyWind;
-                float dWindCorr = upperValue - baseWindCorr;
-
-                windCorr += dWind / Math.Abs(windStep) * dWindCorr;
-            }
-
-            if (weight % weightStep != 0)
-            {
-                float dWeight = weight - keyWeight;
-                float upperValue = dataSet.WindCorr[keyWeight + weightStep][keyWind];
-                float dWindCorr = (int)upperValue - baseWindCorr;
-
-                windCorr += dWeight / weightStep * baseWindCorr;
-            }
-
-            return windCorr;
-        }
-
-        private float CalculateVmcg(
-            ITOPerformance dataSet,
-            float pressAlt,
-            int temp)
-        {
-            if (pressAlt < -2 || pressAlt > 10)
-                throw new OutsidePressAltEnvelopeException();
-
-            if (temp > 70 || temp < -60)
-                throw new OutsideTempEnvelopeException();
-
-            int tempStep = 10;
-            int pressAltStep = 2;
-            int keyTemp = temp / tempStep * tempStep;
-            int keyPressAlt = (int)pressAlt / pressAltStep * pressAltStep;
-
-            if (tempStep < 20)
-            {
-                keyTemp = -60;
-                tempStep = 80;
-            }
-
-            float? baseVmcg = dataSet.Vmcg[keyTemp][keyPressAlt];
-
-            if (baseVmcg is null)
-                throw new OutsideDensAltEnvelopeException();
-
-            float vmcg = (float)baseVmcg;
-
-            if (temp % tempStep != 0)
-            {
-                //if (temp < 0)
-                  //  tempStep = -60;
-
-                int dTemp = temp - keyTemp;
-                float? upperValue = dataSet.Vmcg[keyTemp + tempStep][keyPressAlt];
-
-                if (upperValue is null)
-                    throw new OutsideDensAltEnvelopeException();
-
-                float dVmcg = (int)upperValue - (float)baseVmcg;
-                vmcg += dTemp / Math.Abs(tempStep) * dVmcg;
-            }
-
-            if (pressAlt % pressAltStep != 0)
-            {
-                if (pressAlt < 0)
-                    pressAltStep = -1 * pressAltStep;
-
-                float dPressAlt = pressAlt - keyPressAlt;
-                float? upperValue = dataSet.Vmcg[keyTemp][keyPressAlt + pressAltStep];
-
-                if (upperValue is null)
-                    throw new OutsideDensAltEnvelopeException();
-
-                float dVmcg = (int)upperValue - (float)baseVmcg;
-                vmcg += dPressAlt / Math.Abs(pressAltStep) * dVmcg;
-            }
-
-            return vmcg;
-        }
-
-        private float CalculateSlushCorrection(
-            ITOPerformance dataSet,
-            int slush,
-            float weight,
-            float pressAlt,
-            ReverseThrust revThrust)
-        {
-            if (revThrust == ReverseThrust.OneInop)
-                revThrust = ReverseThrust.None;
-
-            if (weight < 40 || weight > 90)
-                throw new OutsideWeightEnvelopeException();
-
-            if (slush < 3 || slush > 13)
-                throw new OutsideAllowedSlushDepthException();
-
-            if (pressAlt < -2 || pressAlt > 10)
-                throw new OutsidePressAltEnvelopeException();
-
-            int pressAltStep = 5;
-            int slushStep = 3;
-            int weightStep = 5;
-            int keyPressAlt = (int)pressAlt / pressAltStep * pressAltStep;
-
-            if (pressAlt < 0)
-                keyPressAlt = 0;
-
-            int keyWeight = (int)weight / weightStep * weightStep;
-            int keySlush = slush / slushStep * slushStep;
-
-            if (slush >= 6 && slush < 13)
-            {
-                keySlush = 6;
-                slushStep = 7;
-            }
-            else if (slush == 13)
-                keySlush = 13;
-
-            float baseSlushCorr = dataSet.SlushCorr[revThrust][keySlush][keyWeight][keyPressAlt];
-
-            float slushCorr = baseSlushCorr;
-
-            if ((slush % slushStep != 0 || slush == 12) && slush != 13)
-            {
-                //if (slush > 6)
-                  //  slushStep = 7;
-
-                int upperValue =
-                    dataSet.SlushCorr[revThrust][keySlush + slushStep][keyWeight][keyPressAlt];
-                float dSlush = slush - keySlush;
-                float dSlushCorr = upperValue - baseSlushCorr;
-
-                slushCorr += dSlush / slushStep * dSlushCorr;
-            }
-
-            if (pressAlt % pressAltStep != 0)
-            {
-                float dPressAlt = pressAlt - keyPressAlt;
-                int upperValue =
-                    dataSet.SlushCorr[revThrust][keySlush][keyWeight][keyPressAlt + pressAltStep];
-                float dSlushCorr = upperValue - baseSlushCorr;
-
-                slushCorr += dPressAlt / pressAltStep * dSlushCorr;
-            }
-
-            if (weight % weightStep != 0)
-            {
-                float dWeight = weight - keyWeight;
-                int upperValue =
-                    dataSet.SlushCorr[revThrust][keySlush][keyWeight + weightStep][keyPressAlt];
-                float dSlushCorr = upperValue - baseSlushCorr;
-                slushCorr += dWeight / weightStep * dSlushCorr;
-            }
-
-            return slushCorr;
-        }
-
-        private float CalculateBrakingActionCorrection(
-            ITOPerformance dataSet,
-            RunwayCondition brakingAction,
-            ReverseThrust reverseThrust,
-            float weight,
-            float pressAlt)
-        {
-            if (reverseThrust == ReverseThrust.OneInop)
-                reverseThrust = ReverseThrust.None;
-
-            if (weight < 40 || weight > 90)
-                throw new OutsideWeightEnvelopeException();
-
-            if (pressAlt < -2 || pressAlt > 10)
-                throw new OutsidePressAltEnvelopeException();
-
-            if (brakingAction < RunwayCondition.Good ||
-                brakingAction > RunwayCondition.Poor)
-                throw new NotAllowedRunwayConditionException();
-
-            if (pressAlt < 0)
-                pressAlt = 0;
-
-            int weightStep = 5;
-            int pressAltStep = 5;
-            int keyWeight = (int)weight / weightStep * weightStep;
-            int keyPressAlt = (int)pressAlt / pressAltStep * pressAltStep;
-            float baseBrakingActionCorr =
-                dataSet.BrakingActionCorr[reverseThrust][brakingAction][keyWeight][keyPressAlt];
-
-            float brakingActionCorr = baseBrakingActionCorr;
-
-            if (pressAlt % pressAltStep != 0)
-            {
-                float dPressAlt = pressAlt - pressAlt;
-                int upperValue =
-                    dataSet.BrakingActionCorr[reverseThrust][brakingAction][keyWeight][keyPressAlt + pressAltStep];
-                float dBrakingActionCorr = upperValue - baseBrakingActionCorr;
-
-                brakingActionCorr += dPressAlt / pressAltStep * dBrakingActionCorr;
-            }
-
-            if (weight % weightStep != 0)
-            {
-                float dWeight = weight - keyWeight;
-                int upperValue =
-                    dataSet.BrakingActionCorr[reverseThrust][brakingAction][keyWeight][keyPressAlt];
-                float dBrakingActionCorr = upperValue - baseBrakingActionCorr;
-
-                brakingActionCorr += dWeight / weightStep * dBrakingActionCorr;
-            }
-
-            return brakingActionCorr;
-        }
-
-        private float CalculateClearwayCorrection(
-            ITOPerformance dataSet,
-            int clearwayMStopway,
-            float v1)
-        {
-            if (clearwayMStopway > 200 || clearwayMStopway < -300)
-                throw new OutsideAllowedClearwayMinusStopwayRangeException();
-
-            int clearwayStep = 100;
-            int v1Step = 20;
-            int keyClearwayMstopway = clearwayMStopway / clearwayStep * clearwayStep;
-            int keyV1 = (int)v1 / v1Step * v1Step;
-
-            if (keyV1 < 100)
-                keyV1 = 100;
-            else if (keyV1 > 160)
-                keyV1 = 160;
-
-            int baseClearwayCorr =
-                dataSet.ClearwayCorr[keyClearwayMstopway][keyV1];
-            float clearwayCorr = baseClearwayCorr;
-
-            if (clearwayMStopway % clearwayStep != 0)
-            {
-                if (clearwayMStopway < 0)
-                    clearwayStep = -1 * clearwayStep;
-
-                int upperValue =
-                    dataSet.ClearwayCorr[keyClearwayMstopway + clearwayStep][keyV1];
-                float dClearwayMStopway =
-                    clearwayMStopway - keyClearwayMstopway;
-                int dClearwayCorr =
-                    upperValue - baseClearwayCorr;
-
-                clearwayCorr += dClearwayMStopway / Math.Abs(clearwayStep) * dClearwayCorr;
-            }
-
-            if (v1 % v1Step != 0)
-            {
-                int upperValue =
-                    dataSet.ClearwayCorr[keyClearwayMstopway][keyV1 + v1Step];
-                float dV1 = (float)v1 - keyV1;
-                float dClearwayCorr =
-                    upperValue - baseClearwayCorr;
-
-                clearwayCorr += dV1 / v1Step * dClearwayCorr;
-            }
-
-            return clearwayCorr;
-        }
-
         public float CalculateV1(TOParameters parameters)
         {
             if (parameters.RunwaySlope > 2 || parameters.RunwaySlope < -2)
@@ -504,7 +78,7 @@ namespace OPTCore.PerformanceCalculation
                 v1 += slushCorr;
             }
             else if (parameters.RunwayCondition > RunwayCondition.Dry)// ||
-                //parameters.RunwayCondition > RunwayCondition.Dry && parameters.ReverseThrust is ReverseThrust.None)
+                    //parameters.RunwayCondition > RunwayCondition.Dry && parameters.ReverseThrust is ReverseThrust.None)
             {
                 float brkActionCorr =
                     CalculateBrakingActionCorrection(
@@ -561,8 +135,7 @@ namespace OPTCore.PerformanceCalculation
 
             ITOPerformance dataSet = _dataSets[parameters.Thrust];
             float vr = CalculateBaseVSpeed(VSpeed.Vr, parameters, dataSet);
-            float vmcg =
-                CalculateVmcg(dataSet, parameters.PressureAltitude, parameters.Temperature);
+            float vmcg = CalculateVmcg(dataSet, parameters.PressureAltitude, parameters.Temperature);
 
             float densAltCorr =
                 CalculateDensAltCorrection(
@@ -587,9 +160,7 @@ namespace OPTCore.PerformanceCalculation
                 rwyCondition = RunwayCondition.Dry;
 
             ITOPerformance dataSet = _dataSets[parameters.Thrust];
-
             float vr = CalculateBaseVSpeed(VSpeed.Vr, parameters, dataSet);
-
             float densAltCorr =
                 CalculateDensAltCorrection(
                     dataSet,
@@ -598,8 +169,7 @@ namespace OPTCore.PerformanceCalculation
                     VSpeed.Vr);
 
             float adjustedVr = vr + densAltCorr;
-            float vmcg =
-                CalculateVmcg(dataSet, parameters.PressureAltitude, parameters.Temperature);
+            float vmcg = CalculateVmcg(dataSet, parameters.PressureAltitude, parameters.Temperature);
 
             float v2 = CalculateBaseVSpeed(VSpeed.V2, parameters, dataSet);
 
@@ -623,6 +193,238 @@ namespace OPTCore.PerformanceCalculation
             return (float)v2;
         }
 
+        #region private helpers
+
+        private int CalculateThrustReverserInopCorrection()
+            => -2;
+
+        private float CalculateAntiSkidInopCorrection(
+            ITOPerformance dataSet,
+            int rwyLength)
+        {
+            if (rwyLength > 4000)
+                rwyLength = 4000;
+
+            if (rwyLength < 2000)
+                rwyLength = 2000;
+
+            (int lower, int upper) lengthKeys = BinarySearch(dataSet.AntiSkidCorr, rwyLength);
+            float antiSkidInopCorr = dataSet.AntiSkidCorr[lengthKeys.lower];
+
+            antiSkidInopCorr += 
+                Interpolate(rwyLength, lengthKeys, (int)antiSkidInopCorr, dataSet.AntiSkidCorr[lengthKeys.upper]);
+
+            return antiSkidInopCorr;
+        }
+
+        private float CalculateDensAltCorrection(
+            ITOPerformance dataSet,
+            int temp,
+            float pressAlt,
+            VSpeed vSpeed)
+        {
+            if (temp > 70 || temp < -60)
+                throw new OutsideTempEnvelopeException();
+
+            if (pressAlt < -2 || pressAlt > 10)
+                throw new OutsidePressAltEnvelopeException();
+
+            (int lower, int upper) tempKeys = BinarySearch(dataSet.DensAltCorr[(int)vSpeed], temp);
+            (int lower, int upper) pressAltKeys = BinarySearch(dataSet.DensAltCorr[(int)vSpeed][tempKeys.lower], pressAlt);
+
+            int? basePressAltAndTempCorr = dataSet.DensAltCorr[(int)vSpeed][tempKeys.lower][pressAltKeys.lower];
+            int? tempUpperValue = dataSet.DensAltCorr[(int)vSpeed][tempKeys.upper][pressAltKeys.lower];
+            int? pressAltUpperValue = dataSet.DensAltCorr[(int)vSpeed][tempKeys.lower][pressAltKeys.upper];
+
+            if (basePressAltAndTempCorr is null || 
+                tempUpperValue is null ||
+                pressAltUpperValue is null)
+                throw new OutsideDensAltEnvelopeException();
+
+            float pressAltAndTempCorr = (float)basePressAltAndTempCorr;
+
+            pressAltAndTempCorr += Interpolate(temp, tempKeys, (int)basePressAltAndTempCorr, (int)tempUpperValue);
+            pressAltAndTempCorr += Interpolate(pressAlt, pressAltKeys, (int)basePressAltAndTempCorr, (int)pressAltUpperValue);
+
+            return pressAltAndTempCorr;
+        }
+
+        private float CalculateSlopeCorrection(
+            ITOPerformance dataSet,
+            float slope,
+            float weight)
+        {
+            if (slope > 2 || slope < -2)
+                throw new OutsideSlopeEnvelopeException();
+
+            if (weight < 40 || weight > 90)
+                throw new OutsideWeightEnvelopeException();
+
+            (int lower, int upper) weightKeys = BinarySearch(dataSet.SlopeCorr, weight);
+            (int lower, int upper) slopeKeys = BinarySearch(dataSet.SlopeCorr[weightKeys.lower], slope);
+
+            int weightUpperValue = dataSet.SlopeCorr[weightKeys.upper][slopeKeys.lower];
+            int slopeUpperValue = dataSet.SlopeCorr[weightKeys.lower][slopeKeys.upper];
+            int baseSlopeCorr = dataSet.SlopeCorr[weightKeys.lower][slopeKeys.lower];
+            float slopeCorr = baseSlopeCorr;
+
+            slopeCorr += Interpolate(weight, weightKeys, baseSlopeCorr, weightUpperValue);
+            slopeCorr += Interpolate(slope, slopeKeys, baseSlopeCorr, slopeUpperValue);
+
+            return slopeCorr;
+        }
+
+        private float CalculateWindCorrection(
+            ITOPerformance dataSet,
+            int headWind,
+            float weight)
+        {
+            if (headWind < -15 || headWind > 40)
+                throw new OutsideWindEnvelopeException();
+
+            if (weight < 40 || weight > 90)
+                throw new OutsideWeightEnvelopeException();
+
+            (int lower, int upper) weightKeys = BinarySearch(dataSet.WindCorr, weight);
+            (int lower, int upper) windKeys = BinarySearch(dataSet.WindCorr[weightKeys.lower], headWind);
+
+            int weightUpperValue = dataSet.WindCorr[weightKeys.upper][windKeys.lower];
+            int windUpperValue = dataSet.WindCorr[weightKeys.lower][windKeys.upper];
+            int baseWindCorr = dataSet.WindCorr[weightKeys.lower][windKeys.lower];
+            float windCorr = baseWindCorr;
+
+            windCorr += Interpolate(weight, weightKeys, baseWindCorr, weightUpperValue);
+            windCorr += Interpolate(headWind, windKeys, baseWindCorr, windUpperValue);
+
+            return windCorr;
+        }
+        
+        private float CalculateVmcg(
+            ITOPerformance dataSet,
+            float pressAlt,
+            int temp)
+        {
+            if (pressAlt < -2 || pressAlt > 10)
+                throw new OutsidePressAltEnvelopeException();
+
+            if (temp > 70 || temp < -60)
+                throw new OutsideTempEnvelopeException();
+
+            (int lower, int upper) tempKeys = BinarySearch(dataSet.Vmcg, temp);
+            (int lower, int upper) pressAltKeys = BinarySearch(dataSet.Vmcg[tempKeys.lower], pressAlt);
+
+            int? baseVmcg = dataSet.Vmcg[tempKeys.lower][pressAltKeys.lower];
+            int? tempUpperValue = dataSet.Vmcg[tempKeys.upper][pressAltKeys.lower];
+            int? pressAltUpperValue = dataSet.Vmcg[tempKeys.lower][pressAltKeys.upper];
+
+            if (baseVmcg is null ||
+                tempUpperValue is null ||
+                pressAltUpperValue is null)
+                throw new OutsideDensAltEnvelopeException();
+
+            float vmcg = (float)baseVmcg;
+
+            vmcg += Interpolate(temp, tempKeys, (int)baseVmcg, (int)tempUpperValue);
+            vmcg += Interpolate(pressAlt, pressAltKeys, (int)baseVmcg, (int)pressAltUpperValue);
+
+            return vmcg;
+        }
+
+        private float CalculateSlushCorrection(
+            ITOPerformance dataSet,
+            int slush,
+            float weight,
+            float pressAlt,
+            ReverseThrust revThrust)
+        {
+            if (revThrust == ReverseThrust.OneInop)
+                revThrust = ReverseThrust.None;
+
+            if (weight < 40 || weight > 90)
+                throw new OutsideWeightEnvelopeException();
+
+            if (slush < 3 || slush > 13)
+                throw new OutsideAllowedSlushDepthException();
+
+            if (pressAlt < -2 || pressAlt > 10)
+                throw new OutsidePressAltEnvelopeException();
+
+            (int lower, int upper) slushKeys = BinarySearch(dataSet.SlushCorr[revThrust], slush);
+            (int lower, int upper) weightKeys = BinarySearch(dataSet.SlushCorr[revThrust][slushKeys.lower], weight);
+            (int lower, int upper) pressAltKeys = BinarySearch(dataSet.SlushCorr[revThrust][slushKeys.lower][weightKeys.lower], pressAlt);
+
+            int slushUpperValue = dataSet.SlushCorr[revThrust][slushKeys.upper][weightKeys.lower][pressAltKeys.lower];
+            int weightUpperValue = dataSet.SlushCorr[revThrust][slushKeys.lower][weightKeys.lower][pressAltKeys.upper];
+            int pressAltUpperValue = dataSet.SlushCorr[revThrust][slushKeys.lower][weightKeys.upper][pressAltKeys.lower];
+            int baseSlushCorr = dataSet.SlushCorr[revThrust][slushKeys.lower][weightKeys.lower][pressAltKeys.lower];
+            float slushCorr = baseSlushCorr;
+
+            slushCorr += Interpolate(slush, slushKeys, baseSlushCorr, slushUpperValue);
+            slushCorr += Interpolate(weight, weightKeys, baseSlushCorr, weightUpperValue);
+            slushCorr += Interpolate(pressAlt, pressAltKeys, baseSlushCorr, pressAltUpperValue);
+
+            return slushCorr;
+        }
+
+        private float CalculateBrakingActionCorrection(
+            ITOPerformance dataSet,
+            RunwayCondition brakingAction,
+            ReverseThrust revThrust,
+            float weight,
+            float pressAlt)
+        {
+            if (revThrust == ReverseThrust.OneInop)
+                revThrust = ReverseThrust.None;
+
+            if (weight < 40 || weight > 90)
+                throw new OutsideWeightEnvelopeException();
+
+            if (pressAlt < -2 || pressAlt > 10)
+                throw new OutsidePressAltEnvelopeException();
+
+            if (brakingAction < RunwayCondition.Good ||
+                brakingAction > RunwayCondition.Poor)
+                throw new NotAllowedRunwayConditionException();
+
+            if (pressAlt < 0)
+                pressAlt = 0;
+
+            (int lower, int upper) weightKeys = BinarySearch(dataSet.BrakingActionCorr[revThrust][brakingAction], weight);
+            (int lower, int upper) pressAltKeys = BinarySearch(dataSet.BrakingActionCorr[revThrust][brakingAction][weightKeys.lower], pressAlt);
+
+            int weightUpperValue = dataSet.BrakingActionCorr[revThrust][brakingAction][weightKeys.upper][pressAltKeys.lower];
+            int pressAltUpperValue = dataSet.BrakingActionCorr[revThrust][brakingAction][weightKeys.lower][pressAltKeys.upper];
+            int baseBrakingActionCorr = dataSet.BrakingActionCorr[revThrust][brakingAction][weightKeys.lower][pressAltKeys.lower];
+            float brakingActionCorr = baseBrakingActionCorr;
+
+            brakingActionCorr += Interpolate(weight, weightKeys, baseBrakingActionCorr, weightUpperValue);
+            brakingActionCorr += Interpolate(pressAlt, pressAltKeys, baseBrakingActionCorr, pressAltUpperValue);
+
+            return brakingActionCorr;
+        }
+
+        private float CalculateClearwayCorrection(
+            ITOPerformance dataSet,
+            int clearwayMStopway,
+            float v1)
+        {
+            if (clearwayMStopway > 200 || clearwayMStopway < -300)
+                throw new OutsideAllowedClearwayMinusStopwayRangeException();
+
+            (int lower, int upper) clearwayMstopwayKeys = BinarySearch(dataSet.ClearwayCorr, clearwayMStopway);
+            (int lower, int upper) v1Keys = BinarySearch(dataSet.ClearwayCorr[clearwayMstopwayKeys.lower], v1);
+
+            int clrwayMstpwayUpperValue = dataSet.ClearwayCorr[clearwayMstopwayKeys.upper][v1Keys.lower];
+            int v1UpperValue = dataSet.ClearwayCorr[clearwayMstopwayKeys.lower][v1Keys.upper];
+            int baseClearwayCorr = dataSet.ClearwayCorr[clearwayMstopwayKeys.lower][v1Keys.lower];
+            float clearwayCorr = baseClearwayCorr;
+
+            clearwayCorr += Interpolate(clearwayMStopway, clearwayMstopwayKeys, baseClearwayCorr, clrwayMstpwayUpperValue);
+            clearwayCorr += Interpolate(v1, v1Keys, baseClearwayCorr, v1UpperValue);
+
+            return clearwayCorr;
+        }
+
         private float CalculateBaseVSpeed(VSpeed vSpeed, TOParameters parameters, ITOPerformance dataSet)
         {
             if (parameters.Weight < 40 || parameters.Weight > 90)
@@ -634,59 +436,65 @@ namespace OPTCore.PerformanceCalculation
             if (parameters.PressureAltitude < -2 || parameters.PressureAltitude > 10)
                 throw new OutsidePressAltEnvelopeException();
 
-            //int weightStep = 5;
-            //int keyWeight = (int)parameters.Weight / weightStep * weightStep;
-            //float? v = dataSet.VSpeeds[parameters.Flaps][keyWeight][(int)vSpeed];
-
             (int lower, int upper) weightKeys = BinarySearch(dataSet.VSpeeds[parameters.Flaps], (int)parameters.Weight);
-            float? v = dataSet.VSpeeds[parameters.Flaps][weightKeys.lower][(int)vSpeed];
-           
 
-            if (v is null)
+            int? upperValue = dataSet.VSpeeds[parameters.Flaps][weightKeys.upper][(int)vSpeed];
+            float? v = dataSet.VSpeeds[parameters.Flaps][weightKeys.lower][(int)vSpeed];     
+
+            if (v is null ||
+                upperValue is null)
                 throw new OutsideWeightEnvelopeException();
 
-            if (parameters.Weight != weightKeys.lower)
-            {
-                int? upperValue =
-                    dataSet.VSpeeds[parameters.Flaps][weightKeys.upper][(int)vSpeed];
-
-                if (upperValue is null)
-                    throw new OutsideWeightEnvelopeException();
-
-                float dWeight = parameters.Weight - weightKeys.lower;
-                float dSpeed = (int)upperValue - (float)v;
-
-                v += dWeight / (weightKeys.upper - weightKeys.lower) * dSpeed;
-            }
+            v += Interpolate(parameters.Weight, weightKeys, (int)v, (int)upperValue);
 
             return (float)v;
         }
 
-        private (T, T) BinarySearch<T, U>(SortedList<T, U> list, T key) where T : notnull
+        private float Interpolate(          
+            float x,
+            (int lower, int upper) keys,
+            int lowerValue, 
+            int upperValue)
+        {
+            if (keys.lower == keys.upper)
+                return 0;
+
+            float dX = Math.Abs(x - keys.lower);
+            float dY = Math.Abs(upperValue - lowerValue);
+
+            return dX / Math.Abs(keys.upper - keys.lower) * dY;
+        }
+
+        private (int, int) BinarySearch<TValue>(SortedList<int, TValue> list, float key)
         {
             if (list is null)
                 return default;
-
-            var comp = Comparer<T>.Default;
+          
             int start = 0;
             int end = list.Count() - 1;
 
             while (start < end - 1)
             {
                 int pivot = (start + end) / 2;
+                int element = list.GetKeyAtIndex(pivot);             
 
-                T element = list.GetKeyAtIndex(pivot);
-
-                if (comp.Compare(element, key) > 0)
+                if (element > key)
                     end = pivot;
                 else
                     start = pivot;
             }
 
-            T high = list.GetKeyAtIndex(end);
-            T low = list.GetKeyAtIndex(start);
+            int high = list.GetKeyAtIndex(end);
+            int low = list.GetKeyAtIndex(start);
+
+            if (key.Equals(high))           
+                low = high;           
+            else if (key.Equals(low))
+                high = low;
 
             return (low, high);
         }
+
+        #endregion
     }
 }
