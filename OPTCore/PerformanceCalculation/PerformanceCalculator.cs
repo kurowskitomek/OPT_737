@@ -18,7 +18,7 @@ namespace OPTCore.PerformanceCalculation
                 throw new OutsideSlopeEnvelopeException();
 
             if (parameters.HeadWind < -15 || parameters.HeadWind > 40)
-                throw new OutsideWindEnvelopeException();
+                throw new OutsideHeadWindEnvelopeException();
 
             if (parameters.RunwayCondition is RunwayCondition.Slush &&
                 (parameters.Slush < 3 || parameters.Slush > 13))
@@ -280,7 +280,7 @@ namespace OPTCore.PerformanceCalculation
             float weight)
         {
             if (headWind < -15 || headWind > 40)
-                throw new OutsideWindEnvelopeException();
+                throw new OutsideHeadWindEnvelopeException();
 
             if (weight < 40 || weight > 90)
                 throw new OutsideWeightEnvelopeException();

@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
 using OPT.Models;
-using OPTCore.AirfieldsData.Models;
 using ReactiveUI;
 
 namespace OPT.ViewModels
 {
-	public class TakeOffDispatchResultViewModel : ViewModelBase
+    public class TakeOffDispatchResultViewModel : ViewModelBase
 	{
 		private string? _v1;
 		public string? V1

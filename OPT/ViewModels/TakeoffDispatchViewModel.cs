@@ -27,6 +27,7 @@ namespace OPT.ViewModels
 		private readonly IAirfieldsDataBuilder _airfieldsDataBuilder;
 		private readonly IDepthViewModelFactory _depthViewModelFactory;
 		private readonly ITakeOffDispatchResultViewModelFactory _takeOffDispatchResultViewModelFactory;
+		private readonly ITakeOffDispatchErrorViewModelFactory _takeOffDispatchErrorViewModelFactory;
         private readonly IPopUp _popUp;
 
 		private readonly TOParameters _toParameters;
@@ -296,6 +297,7 @@ namespace OPT.ViewModels
 			IAirfieldsDataBuilder airfieldsDataBuilder,
 			IDepthViewModelFactory depthViewModelFactory,
 			ITakeOffDispatchResultViewModelFactory takeoffDispatchResultViewModelFactory,
+			ITakeOffDispatchErrorViewModelFactory takeoffDispatchErrorViewModelFactory,
 			IPopUp popUp)
 		{
 			_weatherService = weatherService;
@@ -304,6 +306,7 @@ namespace OPT.ViewModels
 			_airfieldsDataBuilder = airfieldsDataBuilder;
 			_depthViewModelFactory = depthViewModelFactory;
 			_takeOffDispatchResultViewModelFactory = takeoffDispatchResultViewModelFactory;
+			_takeOffDispatchErrorViewModelFactory = takeoffDispatchErrorViewModelFactory;
 			_popUp = popUp;
 
 			_toParameters = new TOParameters();
@@ -361,19 +364,26 @@ namespace OPT.ViewModels
 			_toParameters.ClearwayMStopway = SelectedRunway.TODA - SelectedRunway.ASDA;
 			_toParameters.RunwayLength = SelectedRunway.TORA;
 
-			float v1 = _performanceCalculator.CalculateV1(_toParameters);
-			float vr = _performanceCalculator.CalculateVr(_toParameters);
-			float v2 = _performanceCalculator.CalculateV2(_toParameters);
-
-			TOResults results = new TOResults
+			try
 			{
-				Runway = SelectedRunway,
-				V1 = (int)Math.Round(v1, 0),
-				Vr = (int)Math.Round(vr, 0),
-				V2 = (int)Math.Round(v2, 0)
-			};
+				float v1 = _performanceCalculator.CalculateV1(_toParameters);
+				float vr = _performanceCalculator.CalculateVr(_toParameters);
+				float v2 = _performanceCalculator.CalculateV2(_toParameters);
 
-			ResultsViewModel = _takeOffDispatchResultViewModelFactory.Create(results);
+                TOResults results = new TOResults
+                {
+                    Runway = SelectedRunway,
+                    V1 = (int)Math.Round(v1, 0),
+                    Vr = (int)Math.Round(vr, 0),
+                    V2 = (int)Math.Round(v2, 0)
+                };
+
+                ResultsViewModel = _takeOffDispatchResultViewModelFactory.Create(results);
+            }
+			catch (DispatchException ex)
+			{
+				ResultsViewModel = _takeOffDispatchErrorViewModelFactory.Create(ex);
+			}
 		}
 
         [DependsOn(nameof(SelectedAirfield))]

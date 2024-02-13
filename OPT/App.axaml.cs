@@ -91,17 +91,19 @@ namespace OPT
                 new Dictionary<TOThrust, ITOPerformance>
                 {
                     { TOThrust.Max, maxPerformance },
-                    { TOThrust.Derate22K, _22KPerformance },
-                    { TOThrust.Derate24K, _24KPerformance }
+                    { TOThrust.Derate24K, _24KPerformance },
+                    { TOThrust.Derate22K, _22KPerformance }
                 };
 
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<MainViewModel>();
             services.AddTransient<LoadingViewModel>();
-
             services.AddSingleton<PageViewModelBase, TakeoffDispatchViewModel>();
-            services.RegisterTypedFactory<ITakeOffDispatchResultViewModelFactory>().ForConcreteType<TakeOffDispatchResultViewModel>();
-
+            services.RegisterTypedFactory<ITakeOffDispatchResultViewModelFactory>()
+                .ForConcreteType<TakeOffDispatchResultViewModel>();
+            services.RegisterTypedFactory<ITakeOffDispatchErrorViewModelFactory>()
+                .ForConcreteType<TakeOffDispatchErrorViewModel>();
+            
             services.AddTransient<ICSVReader, CSVReader>();
             services.AddSingleton<IAirfieldsDataBuilder, AirfieldsDataBuilder>();
             services.AddTransient<IWeatherService, WeatherService>();

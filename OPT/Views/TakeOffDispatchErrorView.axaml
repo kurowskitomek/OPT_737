@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Background="Transparent"
+			 x:Class="OPT.Views.TakeOffDispatchErrorView">
+	
+	<Grid Background="Transparent"
+		  HorizontalAlignment="Center">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="20"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		
+		<TextBlock Grid.Column="0"
+				   HorizontalAlignment="Right"
+				   VerticalAlignment="Center"
+				   Text="INCORRECT CONFIGURATION:"
+				   FontSize="20"
+				   FontWeight="Medium"
+				   Foreground="Red"/>
+		
+		<TextBlock Grid.Column="2"
+				   HorizontalAlignment="Left"
+				   VerticalAlignment="Center"
+				   Text="{Binding Path=Error}"
+				   FontSize="20"
+				   TextWrapping="Wrap"
+				   Foreground="{DynamicResource LightTextForeground}"/>
+	</Grid>
+</UserControl>
